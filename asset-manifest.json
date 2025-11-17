@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/innout-burger/static/css/main.b47b0edc.css",
+    "main.js": "/innout-burger/static/js/main.9599d167.js",
+    "static/js/453.f979b62f.chunk.js": "/innout-burger/static/js/453.f979b62f.chunk.js",
+    "index.html": "/innout-burger/index.html",
+    "main.b47b0edc.css.map": "/innout-burger/static/css/main.b47b0edc.css.map",
+    "main.9599d167.js.map": "/innout-burger/static/js/main.9599d167.js.map",
+    "453.f979b62f.chunk.js.map": "/innout-burger/static/js/453.f979b62f.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b47b0edc.css",
+    "static/js/main.9599d167.js"
+  ]
+}
