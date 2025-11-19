@@ -17,10 +17,10 @@ const App = () => {
   const galleryImages = [
     'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=400&fit=crop',
     'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=800&h=400&fit=crop'
+    'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=800&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=800&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=800&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=400&fit=crop'
   ];
 
   const addToCart = (item) => {
