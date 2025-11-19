@@ -20,7 +20,7 @@ const App = () => {
     'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&h=400&fit=crop',
     'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=800&h=400&fit=crop',
     'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1551615593-ef5fe247e8f5?w=800&h=400&fit=crop'
+    'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=800&h=400&fit=crop'
   ];
 
   const addToCart = (item) => {
