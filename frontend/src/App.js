@@ -1,18 +1,29 @@
-import React, { useState } from 'react';
+// App.js - Frontend with Backend Integration
+import React, { useState, useEffect } from 'react';
 import './App.css';
+
+// API Configuration
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+// Generate unique session ID for cart persistence
+const getSessionId = () => {
+  let sessionId = localStorage.getItem('sessionId');
+  if (!sessionId) {
+    sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('sessionId', sessionId);
+  }
+  return sessionId;
+};
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [cart, setCart] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const menuItems = [
-    { name: 'Double-Double Burger', description: 'Two beef patties, two slices of cheese, fresh lettuce & tomato', price: 5.99 },
-    { name: 'Cheeseburger', description: 'Classic single patty burger with melted cheese', price: 3.99 },
-    { name: 'French Fries', description: 'Golden, crispy fries made fresh', price: 2.49 },
-    { name: 'Shakes', description: 'Chocolate, Strawberry, or Vanilla made with real ice cream', price: 2.99 }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const sessionId = getSessionId();
 
   const galleryImages = [
     'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=400&fit=crop',
@@ -23,42 +34,139 @@ const App = () => {
     'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=400&fit=crop'
   ];
 
+  // Fetch menu items from backend
+  useEffect(() => {
+    fetchMenuItems();
+    fetchCart();
+  }, []);
+
+  const fetchMenuItems = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/menu`);
+      if (!response.ok) throw new Error('Failed to fetch menu');
+      const data = await response.json();
+      setMenuItems(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load menu. Please try again later.');
+      console.error('Error fetching menu:', err);
+      // Fallback to local data if backend fails
+      setMenuItems([
+        { _id: '1', name: 'Double-Double Burger', description: 'Two beef patties, two slices of cheese, fresh lettuce & tomato', price: 5.99 },
+        { _id: '2', name: 'Cheeseburger', description: 'Classic single patty burger with melted cheese', price: 3.99 },
+        { _id: '3', name: 'French Fries', description: 'Golden, crispy fries made fresh', price: 2.49 },
+        { _id: '4', name: 'Shakes', description: 'Chocolate, Strawberry, or Vanilla made with real ice cream', price: 2.99 }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCart = async () => {
+    try {
+      const response = await fetch(`${API_URL}/cart/${sessionId}`);
+      if (!response.ok) throw new Error('Failed to fetch cart');
+      const data = await response.json();
+      setCart(data.items || []);
+    } catch (err) {
+      console.error('Error fetching cart:', err);
+    }
+  };
+
+  const syncCartToBackend = async (updatedCart) => {
+    try {
+      await fetch(`${API_URL}/cart/${sessionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: updatedCart })
+      });
+    } catch (err) {
+      console.error('Error syncing cart:', err);
+    }
+  };
+
   const addToCart = (item) => {
     const existingItem = cart.find(cartItem => cartItem.name === item.name);
+    let updatedCart;
+    
     if (existingItem) {
-      setCart(cart.map(cartItem =>
+      updatedCart = cart.map(cartItem =>
         cartItem.name === item.name
           ? { ...cartItem, quantity: cartItem.quantity + 1 }
           : cartItem
-      ));
+      );
     } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
+      updatedCart = [...cart, { name: item.name, price: item.price, quantity: 1 }];
     }
+    
+    setCart(updatedCart);
+    syncCartToBackend(updatedCart);
   };
 
   const updateQuantity = (name, change) => {
-    setCart(cart.map(item =>
+    const updatedCart = cart.map(item =>
       item.name === name
         ? { ...item, quantity: Math.max(0, item.quantity + change) }
         : item
-    ).filter(item => item.quantity > 0));
+    ).filter(item => item.quantity > 0);
+    
+    setCart(updatedCart);
+    syncCartToBackend(updatedCart);
   };
 
   const removeFromCart = (name) => {
-    setCart(cart.filter(item => item.name !== name));
+    const updatedCart = cart.filter(item => item.name !== name);
+    setCart(updatedCart);
+    syncCartToBackend(updatedCart);
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     if (window.confirm('Are you sure you want to remove all items from your cart?')) {
       setCart([]);
+      try {
+        await fetch(`${API_URL}/cart/${sessionId}`, { method: 'DELETE' });
+      } catch (err) {
+        console.error('Error clearing cart:', err);
+      }
     }
   };
 
-  const checkout = () => {
+  const checkout = async () => {
+    if (cart.length === 0) return;
+    
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    alert(`Thank you for your order!\n\nTotal: $${total.toFixed(2)}\n\nYour order will be ready soon!`);
-    setCart([]);
-    setIsCartOpen(false);
+    
+    // Simple checkout - in production, you'd collect customer info
+    const customerInfo = {
+      name: 'Guest Customer',
+      email: 'guest@example.com',
+      phone: '555-0000'
+    };
+    
+    try {
+      const response = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: cart,
+          totalPrice: total,
+          customerInfo,
+          sessionId
+        })
+      });
+      
+      if (!response.ok) throw new Error('Failed to place order');
+      
+      const order = await response.json();
+      alert(`Thank you for your order!\n\nOrder ID: ${order._id}\nTotal: $${total.toFixed(2)}\n\nYour order will be ready soon!`);
+      
+      setCart([]);
+      setIsCartOpen(false);
+    } catch (err) {
+      console.error('Error placing order:', err);
+      alert('Failed to place order. Please try again.');
+    }
   };
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -131,18 +239,23 @@ const App = () => {
         {currentPage === 'menu' && (
           <div className="menu-page">
             <h1>Our Menu</h1>
-            <div className="menu-grid">
-              {menuItems.map((item, idx) => (
-                <div key={idx} className="menu-card">
-                  <h2>{item.name}</h2>
-                  <p>{item.description}</p>
-                  <p className="price">${item.price.toFixed(2)}</p>
-                  <button onClick={() => addToCart(item)} className="add-btn">
-                    Add to Cart
-                  </button>
-                </div>
-              ))}
-            </div>
+            {error && <div className="error-message">{error}</div>}
+            {loading ? (
+              <div className="loading">Loading menu...</div>
+            ) : (
+              <div className="menu-grid">
+                {menuItems.map((item) => (
+                  <div key={item._id} className="menu-card">
+                    <h2>{item.name}</h2>
+                    <p>{item.description}</p>
+                    <p className="price">${item.price.toFixed(2)}</p>
+                    <button onClick={() => addToCart(item)} className="add-btn">
+                      Add to Cart
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
