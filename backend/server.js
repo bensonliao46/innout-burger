@@ -12,11 +12,23 @@ app.use(express.json());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/innout-burger', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  // Can remove useNewUrlParser and useUnifiedTopology for modern Mongoose/Node
 })
-.then(() => console.log('✅ Connected to MongoDB'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+.then(() => {
+    // 1. Success Message
+    console.log('✅ Connected to MongoDB');
+
+    // 2. START THE SERVER ONLY NOW (after connection success)
+    const PORT = process.env.PORT || 5000; // Define or reuse the PORT variable here
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+    });
+})
+.catch(err => {
+    // 3. Critical Failure Message
+    console.error('❌ CRITICAL MongoDB connection error. Shutting down:', err);
+    // You may want to call process.exit(1) here to stop the server from hanging
+});
 
 // Models
 const menuItemSchema = new mongoose.Schema({
