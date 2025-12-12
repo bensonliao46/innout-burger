@@ -1,11 +1,11 @@
-// App.js - Frontend with Backend Integration
+// App.js - frontend with backend integration
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-// API Configuration
+// API configuration
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Generate unique session ID for cart persistence
+// generate unique session ID for cart persistence
 const getSessionId = () => {
   let sessionId = localStorage.getItem('sessionId');
   if (!sessionId) {
@@ -34,7 +34,7 @@ const App = () => {
     'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=400&fit=crop'
   ];
 
-  // Fetch menu items from backend
+  // fetch menu items from backend
   useEffect(() => {
     fetchMenuItems();
     fetchCart();
@@ -51,7 +51,7 @@ const App = () => {
     } catch (err) {
       setError('Failed to load menu. Please try again later.');
       console.error('Error fetching menu:', err);
-      // Fallback to local data if backend fails
+      // fallback to local data if backend fails
       setMenuItems([
         { _id: '1', name: 'Double-Double Burger', description: 'Two beef patties, two slices of cheese, fresh lettuce & tomato', price: 5.99 },
         { _id: '2', name: 'Cheeseburger', description: 'Classic single patty burger with melted cheese', price: 3.99 },
@@ -137,7 +137,7 @@ const App = () => {
     
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
-    // Simple checkout - in production, you'd collect customer info
+    // simple checkout, collects customer info
     const customerInfo = {
       name: 'Guest Customer',
       email: 'guest@example.com',

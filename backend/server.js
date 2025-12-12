@@ -1,4 +1,4 @@
-// server.js - Main Backend Server
+// main backend server
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -6,31 +6,30 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
+// middleware
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/innout-burger', {
-  // Can remove useNewUrlParser and useUnifiedTopology for modern Mongoose/Node
+  // can remove useNewUrlParser and useUnifiedTopology for modern Mongoose/Node
 })
 .then(() => {
-    // 1. Success Message
+    // success message
     console.log('✅ Connected to MongoDB');
 
-    // 2. START THE SERVER ONLY NOW (after connection success)
+    // start the server after connection success
     const PORT = process.env.PORT || 5000; // Define or reuse the PORT variable here
     app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
     });
 })
 .catch(err => {
-    // 3. Critical Failure Message
+    // critical failure message
     console.error('❌ CRITICAL MongoDB connection error. Shutting down:', err);
-    // You may want to call process.exit(1) here to stop the server from hanging
 });
 
-// Models
+// models
 const menuItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
@@ -76,20 +75,14 @@ const MenuItem = mongoose.model('MenuItem', menuItemSchema);
 const Order = mongoose.model('Order', orderSchema);
 const Cart = mongoose.model('Cart', cartSchema);
 
-// ============================================
-// API Routes
-// ============================================
-
-// Health check
+// API routes
+// health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// ============================================
-// Menu Routes
-// ============================================
-
-// Get all menu items
+// menu routes
+// get all menu items
 app.get('/api/menu', async (req, res) => {
   try {
     const items = await MenuItem.find({ available: true });
@@ -99,7 +92,7 @@ app.get('/api/menu', async (req, res) => {
   }
 });
 
-// Get single menu item
+// get single menu item
 app.get('/api/menu/:id', async (req, res) => {
   try {
     const item = await MenuItem.findById(req.params.id);
@@ -112,7 +105,7 @@ app.get('/api/menu/:id', async (req, res) => {
   }
 });
 
-// Add new menu item (admin)
+// add new menu item (admin)
 app.post('/api/menu', async (req, res) => {
   try {
     const newItem = new MenuItem(req.body);
@@ -123,7 +116,7 @@ app.post('/api/menu', async (req, res) => {
   }
 });
 
-// Update menu item (admin)
+// update menu item (admin)
 app.put('/api/menu/:id', async (req, res) => {
   try {
     const updatedItem = await MenuItem.findByIdAndUpdate(
@@ -140,7 +133,7 @@ app.put('/api/menu/:id', async (req, res) => {
   }
 });
 
-// Delete menu item (admin)
+// delete menu item (admin)
 app.delete('/api/menu/:id', async (req, res) => {
   try {
     const deletedItem = await MenuItem.findByIdAndDelete(req.params.id);
@@ -153,11 +146,8 @@ app.delete('/api/menu/:id', async (req, res) => {
   }
 });
 
-// ============================================
-// Cart Routes
-// ============================================
-
-// Get cart by session ID
+// cart routes
+// get cart by session ID
 app.get('/api/cart/:sessionId', async (req, res) => {
   try {
     let cart = await Cart.findOne({ sessionId: req.params.sessionId });
@@ -171,7 +161,7 @@ app.get('/api/cart/:sessionId', async (req, res) => {
   }
 });
 
-// Update cart
+// update cart
 app.post('/api/cart/:sessionId', async (req, res) => {
   try {
     let cart = await Cart.findOne({ sessionId: req.params.sessionId });
@@ -193,7 +183,7 @@ app.post('/api/cart/:sessionId', async (req, res) => {
   }
 });
 
-// Clear cart
+// clear cart
 app.delete('/api/cart/:sessionId', async (req, res) => {
   try {
     await Cart.findOneAndDelete({ sessionId: req.params.sessionId });
@@ -203,11 +193,8 @@ app.delete('/api/cart/:sessionId', async (req, res) => {
   }
 });
 
-// ============================================
-// Order Routes
-// ============================================
-
-// Get all orders
+// order routes
+// get all orders
 app.get('/api/orders', async (req, res) => {
   try {
     const orders = await Order.find().sort({ orderDate: -1 });
@@ -217,7 +204,7 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
-// Get single order
+// get single order
 app.get('/api/orders/:id', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -230,12 +217,12 @@ app.get('/api/orders/:id', async (req, res) => {
   }
 });
 
-// Create new order
+// create new order
 app.post('/api/orders', async (req, res) => {
   try {
     const { items, totalPrice, customerInfo, notes, sessionId } = req.body;
     
-    // Validate order data
+    // validate order data
     if (!items || items.length === 0) {
       return res.status(400).json({ error: 'Order must contain at least one item' });
     }
@@ -250,7 +237,7 @@ app.post('/api/orders', async (req, res) => {
     
     await newOrder.save();
     
-    // Clear the cart after successful order
+    // clear the cart after successful order
     if (sessionId) {
       await Cart.findOneAndDelete({ sessionId });
     }
@@ -261,7 +248,7 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
-// Update order status
+// update order status
 app.patch('/api/orders/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
@@ -287,7 +274,7 @@ app.patch('/api/orders/:id/status', async (req, res) => {
   }
 });
 
-// Delete order (admin)
+// delete order (admin)
 app.delete('/api/orders/:id', async (req, res) => {
   try {
     const deletedOrder = await Order.findByIdAndDelete(req.params.id);
@@ -300,15 +287,13 @@ app.delete('/api/orders/:id', async (req, res) => {
   }
 });
 
-// ============================================
-// Seed Database (Development Only)
-// ============================================
-app.post('/api/seed', async (req, res) => {
+// seed database
+app.get('/api/seed', async (req, res) => {
   try {
-    // Clear existing data
+    // clear existing data
     await MenuItem.deleteMany({});
     
-    // Seed menu items
+    // seed menu items
     const menuItems = [
       {
         name: 'Double-Double Burger',
@@ -348,9 +333,7 @@ app.post('/api/seed', async (req, res) => {
   }
 });
 
-// ============================================
-// Error Handling
-// ============================================
+// error handling
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
@@ -359,13 +342,3 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!', details: err.message });
 });
-
-// ============================================
-// Start Server
-// ============================================
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
-
-module.exports = app;
