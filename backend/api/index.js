@@ -89,6 +89,35 @@ app.use(async (req, res, next) => {
   }
 });
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Welcome to In-N-Out Burger API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      menu: '/menu',
+      orders: '/orders',
+      cart: '/cart/:sessionId',
+      seed: '/seed'
+    }
+  });
+});
+
+app.get('/api', (req, res) => {
+  res.json({ 
+    message: 'Welcome to In-N-Out Burger API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      menu: '/api/menu',
+      orders: '/api/orders',
+      cart: '/api/cart/:sessionId',
+      seed: '/api/seed'
+    }
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
