@@ -89,13 +89,13 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
+// Health check - REMOVED /api prefix
+app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// Menu routes
-app.get('/api/menu', async (req, res) => {
+// Menu routes - REMOVED /api prefix
+app.get('/menu', async (req, res) => {
   try {
     const items = await MenuItem.find({ available: true });
     res.json(items);
@@ -104,7 +104,7 @@ app.get('/api/menu', async (req, res) => {
   }
 });
 
-app.get('/api/menu/:id', async (req, res) => {
+app.get('/menu/:id', async (req, res) => {
   try {
     const item = await MenuItem.findById(req.params.id);
     if (!item) {
@@ -116,7 +116,7 @@ app.get('/api/menu/:id', async (req, res) => {
   }
 });
 
-app.post('/api/menu', async (req, res) => {
+app.post('/menu', async (req, res) => {
   try {
     const newItem = new MenuItem(req.body);
     await newItem.save();
@@ -126,7 +126,7 @@ app.post('/api/menu', async (req, res) => {
   }
 });
 
-app.put('/api/menu/:id', async (req, res) => {
+app.put('/menu/:id', async (req, res) => {
   try {
     const updatedItem = await MenuItem.findByIdAndUpdate(
       req.params.id,
@@ -142,7 +142,7 @@ app.put('/api/menu/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/menu/:id', async (req, res) => {
+app.delete('/menu/:id', async (req, res) => {
   try {
     const deletedItem = await MenuItem.findByIdAndDelete(req.params.id);
     if (!deletedItem) {
@@ -154,8 +154,8 @@ app.delete('/api/menu/:id', async (req, res) => {
   }
 });
 
-// Cart routes
-app.get('/api/cart/:sessionId', async (req, res) => {
+// Cart routes - REMOVED /api prefix
+app.get('/cart/:sessionId', async (req, res) => {
   try {
     let cart = await Cart.findOne({ sessionId: req.params.sessionId });
     if (!cart) {
@@ -168,7 +168,7 @@ app.get('/api/cart/:sessionId', async (req, res) => {
   }
 });
 
-app.post('/api/cart/:sessionId', async (req, res) => {
+app.post('/cart/:sessionId', async (req, res) => {
   try {
     let cart = await Cart.findOne({ sessionId: req.params.sessionId });
     
@@ -189,7 +189,7 @@ app.post('/api/cart/:sessionId', async (req, res) => {
   }
 });
 
-app.delete('/api/cart/:sessionId', async (req, res) => {
+app.delete('/cart/:sessionId', async (req, res) => {
   try {
     await Cart.findOneAndDelete({ sessionId: req.params.sessionId });
     res.json({ message: 'Cart cleared successfully' });
@@ -198,8 +198,8 @@ app.delete('/api/cart/:sessionId', async (req, res) => {
   }
 });
 
-// Order routes
-app.get('/api/orders', async (req, res) => {
+// Order routes - REMOVED /api prefix
+app.get('/orders', async (req, res) => {
   try {
     const orders = await Order.find().sort({ orderDate: -1 });
     res.json(orders);
@@ -208,7 +208,7 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
-app.get('/api/orders/:id', async (req, res) => {
+app.get('/orders/:id', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) {
@@ -220,7 +220,7 @@ app.get('/api/orders/:id', async (req, res) => {
   }
 });
 
-app.post('/api/orders', async (req, res) => {
+app.post('/orders', async (req, res) => {
   try {
     const { items, totalPrice, customerInfo, notes, sessionId } = req.body;
     
@@ -248,7 +248,7 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
-app.patch('/api/orders/:id/status', async (req, res) => {
+app.patch('/orders/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
     
@@ -273,7 +273,7 @@ app.patch('/api/orders/:id/status', async (req, res) => {
   }
 });
 
-app.delete('/api/orders/:id', async (req, res) => {
+app.delete('/orders/:id', async (req, res) => {
   try {
     const deletedOrder = await Order.findByIdAndDelete(req.params.id);
     if (!deletedOrder) {
@@ -285,8 +285,8 @@ app.delete('/api/orders/:id', async (req, res) => {
   }
 });
 
-// Seed route
-app.get('/api/seed', async (req, res) => {
+// Seed route - REMOVED /api prefix
+app.get('/seed', async (req, res) => {
   try {
     await MenuItem.deleteMany({});
     
